@@ -1,0 +1,1 @@
+module.exports={ '/api/**':{target:'http://localhost:5179',changeOrigin:false},'/products/**':{target:'http://localhost:5179',changeOrigin:false,bypass(req){if(req.headers.accept?.includes('text/html'))return '/index.html';}}};

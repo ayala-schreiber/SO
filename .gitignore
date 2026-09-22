@@ -1,0 +1,62 @@
+# ---------- סודות והגדרות מקומיות ----------
+# מחרוזות חיבור והגדרות סביבה. אין להעלות לעולם.
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Local.json
+*.env
+.env*
+secrets.json
+# מפתחות ותעודות
+*.pfx
+*.pem
+*.key
+*.p12
+*.cer
+# תיקיית מפתחות ההצפנה של Data Protection
+dataprotection-keys/
+
+# ---------- תוצרי בנייה ----------
+[Bb]in/
+[Oo]bj/
+/so/dist/
+/so/.angular/
+/so/node_modules/
+*.user
+*.suo
+
+# ---------- סביבות פיתוח ----------
+.vs/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+
+# ---------- לוגים וזמניים ----------
+*.log
+npm-debug.log*
+yarn-error.log*
+/so/coverage/
+*.tmp
+
+# ---------- גיבויים ונתונים ----------
+# גיבויי מסד נתונים לא נכנסים לבקרת גרסאות
+*.bak
+*.bacpac
+*.mdf
+*.ldf
+/backups/
+
+# ---------- מערכת הפעלה ----------
+Thumbs.db
+.DS_Store
+
+# Portfolio: local configuration, uploads, and development tooling
+**/.vscode/
+**/wwwroot/products/uploads/
+**/node_modules/
+*.db
+*.sqlite*
+*.zip
+so/.portfolio-verification.mjs

@@ -1,0 +1,188 @@
+/* --- הבר העליון --- */
+:host {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+header {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 10px 30px;
+  background-color: white;
+  border-bottom: 0.5px solid #e0e0e0;
+  z-index: 1000;
+  box-sizing: border-box;
+}
+
+/* סידור התפריט והאייקונים */
+.left-menu, .right-icons {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.right-icons {
+  justify-content: flex-end;
+}
+
+.left-menu {
+  justify-content: flex-start;
+}
+
+/* עיצוב אייקונים אחיד */
+.icon-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1001;
+  transition: transform 0.2s ease;
+}
+
+  .icon-container:hover {
+    transform: scale(1.2);
+  }
+
+  .icon-container svg {
+    width: 30px;
+    height: 30px;
+    stroke: #333;
+    fill: none;
+    stroke-width: 1.5;
+  }
+
+  .icon-container:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: 150%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    color: black;
+    padding: 6px 12px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border: 1px solid #eee;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    white-space: nowrap;
+    z-index: 9999;
+    pointer-events: none;
+  }
+
+a.icon-container {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: #ff2d78;
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* הלוגו */
+.logo {
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 3em;
+  letter-spacing: 6px;
+  margin: 0;
+  font-weight: normal;
+  color: #000;
+}
+
+.logo-link {
+  text-decoration: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+/* --- תפריט צד ואוברליי --- */
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1002;
+  cursor: pointer;
+}
+
+  .overlay.active {
+    display: block;
+  }
+
+.side-menu {
+  position: fixed;
+  top: 0;
+  left: -350px;
+  width: 300px;
+  height: 100%;
+  background: white;
+  transition: 0.4s ease-in-out;
+  z-index: 1003;
+  padding: 20px;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+  .side-menu.open {
+    left: 0;
+  }
+
+.menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.2rem;
+  margin-bottom: 40px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.close-btn {
+  cursor: pointer;
+  font-size: 1.5rem;
+  transition: 0.3s;
+}
+
+  .close-btn:hover {
+    color: #ff69b4;
+    transform: scale(1.2);
+  }
+
+.side-menu nav a {
+  display: block;
+  padding: 20px 10px;
+  text-decoration: none;
+  color: #333;
+  font-size: 1.1rem;
+  border-bottom: 1px solid #f9f9f9;
+}
+
+  .side-menu nav a:hover {
+    background-color: #fcfcfc;
+    color: #000;
+  }
+
+button.icon-container,button.close-btn{border:0;background:transparent;padding:4px;min-height:44px;min-width:44px;color:#333}.side-menu{box-sizing:border-box;max-width:90vw;overflow:auto}@media(max-width:500px){header{padding:10px 12px}.left-menu,.right-icons{gap:8px}.icon-container svg{width:24px;height:24px}.logo{font-size:2rem;letter-spacing:2px}.right-icons{flex:2}.icon-container{min-height:40px;min-width:28px}}

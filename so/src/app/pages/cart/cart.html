@@ -1,0 +1,46 @@
+<p role="status" dir="rtl">{{ cartService.message() }}</p>
+<div class="category-header">
+  <h1 class="page-title">עגלת הקניות שלי</h1>
+</div>
+
+<div class="cart-empty" *ngIf="cartService.cartItems().length === 0">
+  <p>העגלה שלך ריקה</p>
+  <a routerLink="/silk-scarves" class="continue-shopping">להמשך קניות</a>
+</div>
+
+<div dir="rtl" class="cart-content" *ngIf="cartService.cartItems().length > 0">
+  <div class="cart-items">
+    <div class="cart-item" *ngFor="let item of cartService.cartItems()">
+      <div class="cart-item-image">
+        <img *ngIf="item.product.imageUrl" [src]="item.product.imageUrl" [alt]="item.product.name">
+      </div>
+      <div class="cart-item-details">
+        <h2>{{ item.product.name }}</h2>@if(item.product.color||item.product.size){<p>{{ item.product.color }} @if(item.product.size){· {{ item.product.size }} ס״מ}</p>}
+        @if(item.stockError){<p class="stock-error" role="status">{{item.stockError}}</p><a routerLink="/catalog">לבחירת מטפחת אחרת</a>}
+        @if(!item.catalogMissing&&cartService.catalogReady()){<p class="cart-item-price">{{ item.product.price }} ₪</p>}
+      </div>
+      <div class="cart-item-quantity">
+        <button [attr.aria-label]="'הפחתת כמות '+item.product.name" [disabled]="cartService.busy()" (click)="decrease(item.product.id, item.quantity)">-</button>
+        <span>{{ item.quantity }}</span>
+        <button [attr.aria-label]="'הגדלת כמות '+item.product.name" [disabled]="cartService.busy()" (click)="increase(item.product.id, item.quantity)">+</button>
+      </div>
+      <div class="cart-item-subtotal">
+        @if(!item.catalogMissing&&cartService.catalogReady()){{{ item.product.price * item.quantity }} ₪}
+      </div>
+      <button [attr.aria-label]="'הסרת '+item.product.name+' מהסל'" class="remove-btn" [disabled]="cartService.busy()" (click)="remove(item.product.id)">✕</button>
+    </div>
+  </div>
+
+  <div class="cart-summary">
+    <div class="cart-total">
+      <span>סכום המוצרים:</span>
+      <span class="total-amount">@if(cartService.hasMissingProducts()){—}@else if(cartService.catalogReady()){{{ cartService.totalPrice() }} ₪}@else{טוענים…}</span>
+    </div>
+    @if (shipping(); as s) {
+    <p>משלוח או איסוף עצמי נבחרים בשלב הבא.</p><p>משלוח חינם מ־{{s.freeDeliveryAbove}} ₪ ומעלה.</p>
+    } @else {<p role="status">{{shippingError()?'לא ניתן לטעון דמי משלוח. רעננו את העמוד.':'טוענים דמי משלוח…'}}</p>}
+    @if(!cartService.catalogReady()){<p role="status">יש לטעון את פרטי המוצרים לפני המשך להזמנה.</p><button type="button" (click)="cartService.refreshCatalog()">ניסיון טעינה נוסף</button>}
+    @if(cartService.catalogReady()&&!cartService.canCheckout()&&!cartService.busy()){<p role="status">יש להסיר פריטים שאזלו או לעדכן כמויות לפני המשך להזמנה.</p>}
+    <a class="checkout-btn" [routerLink]="cartService.canCheckout()?'/checkout':null" [attr.aria-disabled]="!cartService.canCheckout()">המשך לפרטי ההזמנה</a>
+  </div>
+</div>

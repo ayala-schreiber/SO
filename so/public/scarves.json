@@ -1,0 +1,66 @@
+[
+  {
+    "id": 1,
+    "name": "מטפחת משי קלאסית",
+    "price": 120,
+    "image": "/products/silk-classic.jpg",
+    "category": "silk"
+  },
+  {
+    "id": 2,
+    "name": "מטפחת משי פרחונית",
+    "price": 135,
+    "image": "/products/silk-floral.jpg",
+    "category": "silk",
+    "summerCollection": true
+  },
+  {
+    "id": 3,
+    "name": "מטפחת כותנה טבעית",
+    "price": 90,
+    "image": "/products/cotton-natural.jpg",
+    "category": "cotton"
+  },
+  {
+    "id": 4,
+    "name": "מטפחת אלגנטית",
+    "price": 110,
+    "image": "/products/elegant.jpg",
+    "category": "silk"
+  },
+  {
+    "id": 5,
+    "name": "קשירת בוטיק מיוחדת",
+    "price": 140,
+    "image": "/products/boutique-tie.jpg",
+    "category": "cotton",
+    "summerCollection": true
+  },
+  {
+    "id": 6,
+    "name": "מטפחת הנחה",
+    "price": 135,
+    "originalPrice": 180,
+    "onSale": true,
+    "image": "/products/sale-discount.jpg",
+    "category": "cotton"
+  },
+  {
+    "id": 7,
+    "name": "מטפחת מיוחדת SALE",
+    "price": 120,
+    "originalPrice": 200,
+    "onSale": true,
+    "image": "/products/sale-special.jpg",
+    "category": "silk"
+  },
+  {
+    "id": 8,
+    "name": "מטפחת במבצע",
+    "price": 105,
+    "originalPrice": 150,
+    "onSale": true,
+    "image": "/products/sale-deal.jpg",
+    "category": "cotton"
+  }
+]

@@ -1,0 +1,6 @@
+import {Component,inject,signal} from '@angular/core';
+import {ActivatedRoute,RouterLink} from '@angular/router';
+import {finalize} from 'rxjs';
+import {CustomerApi} from '../services/customer';
+@Component({standalone:true,imports:[RouterLink],styleUrl:'../admin/admin.css',template:`<section class="admin-panel customer-panel" dir="rtl"><p class="eyebrow">SO · החשבון שלי</p><h1>אימות כתובת המייל</h1><p>לחצו לאישור שזו כתובת המייל שלכם.</p>@if(!done()){<button type="button" [disabled]="busy()||!token" (click)="verify()">{{busy()?'מאמתים…':'אימות המייל שלי'}}</button>}<p role="status">{{message()}}</p><a routerLink="/account">חזרה לחשבון שלי</a></section>`})
+export class VerifyEmail{private api=inject(CustomerApi);token=new URLSearchParams(inject(ActivatedRoute).snapshot.fragment||'').get('token')||'';busy=signal(false);done=signal(false);message=signal(this.token?'':'חסר קישור אימות. ניתן לבקש קישור באזור האישי.');verify(){if(this.busy()||this.done()||!this.token)return;this.busy.set(true);this.api.post<{message:string}>('/api/customer/verify-email',{token:this.token}).pipe(finalize(()=>this.busy.set(false))).subscribe({next:r=>{this.done.set(true);this.message.set(r.message);},error:e=>this.message.set((e.status===0?null:e.error?.message)||'לא ניתן לאמת כרגע. נסו שוב.')});}}

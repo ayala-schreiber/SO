@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup><ItemGroup><ProjectReference Include="../../so.api/so.api.csproj" /><Compile Include="../CommerceChecks/OwnerTestTotp.cs" Link="OwnerTestTotp.cs" /></ItemGroup></Project>

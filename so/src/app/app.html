@@ -1,0 +1,31 @@
+<a class="skip-link" (click)="skip($event)" href="#main-content">דילוג לתוכן הראשי</a>
+<app-header></app-header>
+
+<main dir="rtl" id="main-content" tabindex="-1"><router-outlet></router-outlet></main><app-accessibility-controls></app-accessibility-controls>
+
+<footer class="site-footer">
+  <h2 class="footer-logo">SO.</h2>
+
+
+  <div class="footer-icons">
+    @if(contact.email()){<a [href]="contact.gmail()" target="_blank" rel="noopener noreferrer" aria-label="כתיבת מייל ל־SO ב־Gmail (נפתח בחלון חדש)" [title]="contact.email()">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m3 6 9 7 9-7"/></svg>
+    </a>}
+
+
+    @if(contact.phone()){<a aria-label="פנייה בוואטסאפ (נפתח בחלון חדש)" [href]="contact.whatsapp()" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></svg>
+    </a>}
+
+    <a aria-label="אינסטגרם (נפתח בחלון חדש)" href="https://example.com" target="_blank" rel="noopener noreferrer">
+      <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" /></svg>
+    </a>
+  </div>
+
+  <div class="footer-hours">
+    <p class="hours-title" dir="rtl">שעות מענה:</p>
+    <p><bdi>09:00–17:00</bdi></p>
+  </div>
+
+  <nav class="legal-links" aria-label="מידע ושירות"><a routerLink="/accessibility">הצהרת נגישות</a><a routerLink="/privacy">פרטיות</a><a routerLink="/terms">תנאי שימוש</a></nav><p class="footer-copy">SO. All rights reserved 2026 ©</p>
+</footer>

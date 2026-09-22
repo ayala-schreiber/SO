@@ -1,0 +1,1 @@
+import {Component} from '@angular/core';import {RouterLink} from '@angular/router';@Component({standalone:true,imports:[RouterLink],template:`<section class="admin-panel" dir="rtl"><h1>העמוד לא נמצא</h1><p>ייתכן שהכתובת השתנתה או שהקישור אינו זמין.</p><a routerLink="/catalog">חזרה לקטלוג המטפחות</a></section>`,styleUrl:'../admin/admin.css'})export class NotFound{}

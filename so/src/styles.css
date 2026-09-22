@@ -1,0 +1,29 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* --- איפוס כללי --- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background-color: #fff;
+  color: #333;
+}
+
+.skip-link{position:fixed;top:-100px;right:16px;z-index:10000;padding:16px;background:#fff;color:#33271f;border:2px solid #483327}.skip-link:focus{top:12px}:focus-visible{outline:3px solid #9b4e1b;outline-offset:3px}main:focus{outline:none}.legal-links{display:flex;justify-content:center;flex-wrap:wrap;gap:22px;padding:22px}.legal-links a{color:#483327;text-decoration:underline}html.so-large{font-size:125%}html.so-links a{text-decoration:underline!important;text-underline-offset:3px}html.so-contrast body,html.so-contrast main,html.so-contrast section,html.so-contrast article,html.so-contrast footer,html.so-contrast header,html.so-contrast .card,html.so-contrast .admin-panel{background:#fff!important;color:#111!important}html.so-contrast :is(p,span,label,legend,h1,h2,h3,strong,a){color:#111!important}html.so-contrast button,html.so-contrast .checkout-btn,html.so-contrast .button-link{background:#111!important;color:#fff!important;border:2px solid #111!important}html.so-contrast input,html.so-contrast select{background:#fff!important;color:#111!important;border:2px solid #111!important}@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+html.so-contrast .dashboard-card{background:#fff!important;color:#111!important}
+
+html.so-motion *,html.so-motion *::before,html.so-motion *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}html.so-large :is(p,label,input,select,textarea,button,li,a){font-size:max(1em,1rem)}html.so-contrast dialog{background:#fff!important;color:#111!important}html.so-contrast dialog button[aria-pressed=true]{outline:3px solid #111;outline-offset:2px}
+
+html.so-contrast button :is(span,b,svg,path){color:inherit!important}html.so-contrast button svg{stroke:currentColor!important}
+
+.required-mark{color:#b42335;font-weight:700}.required-note{font-size:.875rem;color:#594b41}.field-error{color:#a1192d;font-size:.875rem;line-height:1.5}input[aria-invalid="true"]{border-color:#a1192d!important}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}main h1{font-size:1.9rem;line-height:1.3;margin:16px 0}main{scroll-margin-top:100px}main :is(input,button,a){scroll-margin-block:110px 80px}.site-footer .footer-copy{color:#666}main .story-image>span{color:#666}
+
+main .sr-only{left:0;right:auto;top:0;margin:0}

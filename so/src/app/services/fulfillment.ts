@@ -1,0 +1,3 @@
+import {Order} from './customer';
+export function fulfillmentLabel(status?:string){return ({Pending:'טרם החלה הכנה',Preparing:'בהכנה',ReadyForPickup:'מוכן לאיסוף עצמי',OutForDelivery:'יצא למשלוח',Collected:'נאסף',Delivered:'נמסר'} as Record<string,string>)[status||'Pending']||'טרם החלה הכנה';}
+export function nextFulfillment(o:Order):string|null{if(o.status!=='Paid')return null;switch(o.fulfillmentStatus||'Pending'){case 'Pending':return 'Preparing';case 'Preparing':return o.pickup?'ReadyForPickup':'OutForDelivery';case 'ReadyForPickup':return o.pickup?'Collected':null;case 'OutForDelivery':return o.pickup?null:'Delivered';default:return null;}}

@@ -1,0 +1,70 @@
+using System.Diagnostics;
+using System.Net;
+using System.Net.Http.Json;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.Configuration;
+using so.api.Data;
+using so.api.Models;
+using so.api.Security;
+
+var config=WebApplication.CreateBuilder(new WebApplicationOptions{ContentRootPath=Directory.GetCurrentDirectory(),EnvironmentName="Development"}).Configuration;
+var connection=new SqlConnectionStringBuilder(config.GetConnectionString("DefaultConnection")){InitialCatalog="SO_CustomerIdentity_"+Guid.NewGuid().ToString("N")};
+await using var db=new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseSqlServer(connection.ConnectionString).Options);
+Process? server=null;int count=0;
+void Check(bool ok,string label){if(!ok)throw new Exception(label);count++;Console.WriteLine("PASS "+label);}
+HttpClient Client()=>new(new HttpClientHandler{CookieContainer=new CookieContainer(),AllowAutoRedirect=false}){BaseAddress=new Uri("http://127.0.0.1:5195")};
+async Task<JsonElement> Json(HttpResponseMessage r)=>JsonDocument.Parse(await r.Content.ReadAsStringAsync()).RootElement.Clone();
+async Task<HttpResponseMessage> Post(HttpClient c,string path,object body){var token=(await Json(await c.GetAsync("/api/customer/csrf"))).GetProperty("token").GetString();using var r=new HttpRequestMessage(HttpMethod.Post,"/api/customer/"+path){Content=JsonContent.Create(body)};r.Headers.Add("X-CSRF-TOKEN",token);return await c.SendAsync(r);}
+try{
+ await db.GetService<IMigrator>().MigrateAsync("20260909082315_OwnerIdentitySecurity");
+ const string email="legacy@example.test",normalized="LEGACY@EXAMPLE.TEST",oldPassword="OlderPass10";
+ var hash=new PasswordHasher<Customer>().HashPassword(new Customer(),oldPassword);
+ var resetToken=Convert.ToHexString(RandomNumberGenerator.GetBytes(32));var resetHash=Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(resetToken)));var now=DateTimeOffset.UtcNow;
+ await db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO [Customers] ([Name],[Email],[NormalizedEmail],[PasswordHash],[SessionId],[CreatedAt],[EmailVerified],[ResetHash],[ResetExpiresAt]) VALUES ({"Legacy test"},{email},{normalized},{hash},{"old-session"},{now},{true},{resetHash},{now.AddMinutes(30)})");
+ var customerId=await db.Database.SqlQuery<int>($"SELECT [Id] AS [Value] FROM [Customers] WHERE [NormalizedEmail]={normalized}").SingleAsync();
+ // Insert with the historical schema rather than the current EF model, which has newer columns.
+ await db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO [ShopOrders] ([CustomerId],[RequestKey],[RequestHash],[ContactName],[Email],[Phone],[Address],[Pickup],[ItemsJson],[Discount],[Subtotal],[DeliveryFee],[Status],[CreatedAt],[Version],[FulfillmentStatus],[FulfillmentHistoryJson]) VALUES ({customerId},{Guid.NewGuid()},{""},{"Legacy test"},{email},{""},{""},{false},{"[]"},{0m},{239m},{0m},{"AwaitingPayment"},{now},{0},{"Pending"},{"[]"})");
+ var historicalId=await db.Database.SqlQuery<int>($"SELECT [Id] AS [Value] FROM [ShopOrders] WHERE [CustomerId]={customerId}").SingleAsync();
+ await db.Database.MigrateAsync();
+ var migratedOrder=await db.ShopOrders.AsNoTracking().SingleAsync();
+ Check(migratedOrder.LegacyNumber==$"SO-{historicalId:D6}"&&migratedOrder.PublicCode.StartsWith("SO-")&&migratedOrder.PublicCode!=migratedOrder.LegacyNumber,"migration assigns random code while retaining old payment reference for owner");
+ var migrated=await db.Customers.AsNoTracking().SingleAsync();
+ Check(migrated.Id==customerId&&migrated.PasswordHash==hash,"migration preserves customer ID and exact existing password hash");
+ Check(migrated.EmailConfirmed&&migrated.EmailVerified,"existing email verification status survives migration");
+ Check(migrated.ResetHash==resetHash&&migrated.SessionId=="old-session","issued reset link and existing session state survive migration");
+ Check(migrated.LockoutEnabled&&migrated.UserName==email&&!string.IsNullOrEmpty(migrated.SecurityStamp),"migration initializes Identity fields and enables account lockout");
+ Check((await db.ShopOrders.AsNoTracking().SingleAsync()).CustomerId==customerId,"historical order remains linked to the same customer");
+ foreach(var weak in new[]{"shortPass10","password1234","123456789012","abcdabcdabcd","aaaaaaaaaaaa"})Check(!CustomerPasswordValidator.Accepts(weak),"password policy rejects weak sample "+weak.Length);
+ Check(CustomerPasswordValidator.Accepts("שלוש מילים שונות לקנייה"),"long Hebrew passphrase is accepted");
+ var start=new ProcessStartInfo("dotnet",Environment.GetEnvironmentVariable("SO_TEST_API_DLL")??Path.Combine(Directory.GetCurrentDirectory(), "bin", "Release", "net8.0", "so.api.dll")){WorkingDirectory=Directory.GetCurrentDirectory(),UseShellExecute=false,CreateNoWindow=true,RedirectStandardOutput=true,RedirectStandardError=true};
+ start.Environment["ASPNETCORE_ENVIRONMENT"]="Development";start.Environment["ASPNETCORE_URLS"]="http://127.0.0.1:5195";start.Environment["ConnectionStrings__DefaultConnection"]=connection.ConnectionString;start.Environment["Admin__Username"]="";start.Environment["Admin__PasswordHash"]="";
+ server=Process.Start(start)!;server.OutputDataReceived+=(_,_)=>{};server.ErrorDataReceived+=(_,_)=>{};server.BeginOutputReadLine();server.BeginErrorReadLine();
+ using var customer=Client();using var second=Client();bool ready=false;for(var i=0;i<100;i++){try{if((await customer.GetAsync("/api/customer/csrf")).IsSuccessStatusCode){ready=true;break;}}catch{}await Task.Delay(100);}Check(ready,"isolated migrated API starts");
+ Check((await Post(customer,"login",new{email,password=oldPassword})).IsSuccessStatusCode,"existing password shorter than new registration minimum still signs in");
+ var orders=await Json(await customer.GetAsync("/api/customer/orders"));Check(orders.GetArrayLength()==1&&orders[0].GetProperty("id").GetString()==(await db.ShopOrders.AsNoTracking().SingleAsync(o=>o.Id==historicalId)).PublicCode,"migrated customer sees the original order history");
+ var failures=await Task.WhenAll(Enumerable.Range(0,5).Select(async _=>{using var attempt=Client();return (await Post(attempt,"login",new{email,password="incorrect"})).StatusCode;}));Check(failures.All(s=>s==HttpStatusCode.Unauthorized),"five concurrent wrong passwords are rejected");
+ var locked=await db.Customers.AsNoTracking().SingleAsync();Check(locked.LockoutEnd>DateTimeOffset.UtcNow,"concurrent failures persist a temporary lockout without lost increments");
+ Check((await Post(second,"login",new{email,password=oldPassword})).StatusCode==HttpStatusCode.Unauthorized,"correct password cannot bypass active account lockout");
+ const string newPassword="Fresh four words for SO 2026";
+ Check((await Post(second,"register",new{name="Other test",email="other@example.test",password=newPassword})).IsSuccessStatusCode,"another customer remains able to register while the first is locked");
+ Check((await Post(customer,"reset-password",new{token=resetToken,password="password1234"})).StatusCode==HttpStatusCode.BadRequest,"server rejects common password during reset");
+ Check((await db.Customers.AsNoTracking().SingleAsync(c=>c.Id==customerId)).ResetHash==resetHash,"rejected password does not consume a reset link");
+ Check((await Post(customer,"reset-password",new{token=resetToken,password=newPassword})).IsSuccessStatusCode,"previously issued reset link changes the password through Identity");
+ Check((await customer.GetAsync("/api/customer/session")).StatusCode==HttpStatusCode.Unauthorized,"password reset revokes the previous session");
+ Check((await Post(customer,"reset-password",new{token=resetToken,password=newPassword})).StatusCode==HttpStatusCode.BadRequest,"reset link remains single-use after migration");
+ var reset=await db.Customers.AsNoTracking().SingleAsync(c=>c.Id==customerId);Check(reset.LockoutEnd==null&&reset.AccessFailedCount==0,"successful password reset clears account lockout");
+ Check((await Post(customer,"login",new{email,password=oldPassword})).StatusCode==HttpStatusCode.Unauthorized,"old password no longer works after reset");
+ Check((await Post(customer,"login",new{email,password=newPassword})).IsSuccessStatusCode,"new Identity password signs in");
+ Check((await Post(second,"register",new{name="Invalid",email="short@example.test",password="ShortPass10"})).StatusCode==HttpStatusCode.BadRequest,"server enforces registration password length");
+ Check((await Post(second,"register",new{name="Invalid",email="common@example.test",password="password1234"})).StatusCode==HttpStatusCode.BadRequest,"server rejects common registration password");
+ Check(await db.Customers.CountAsync()==2,"invalid registrations create no customer records");
+ Console.WriteLine($"{count} customer migration and authentication checks passed.");
+}finally{if(server!=null&&!server.HasExited){server.Kill(true);await server.WaitForExitAsync();}if(connection.InitialCatalog.StartsWith("SO_CustomerIdentity_")&&connection.InitialCatalog.Length==52)await db.Database.EnsureDeletedAsync();}

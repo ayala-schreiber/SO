@@ -1,0 +1,54 @@
+.site-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 50px 20px;
+  background-color: #fcfcfc;
+  color: #333;
+}
+
+.footer-logo {
+  font-family: 'Times New Roman', serif;
+  font-size: 2em;
+  margin: 0 0 20px 0;
+  font-weight: normal;
+}
+
+.footer-icons {
+  display: flex;
+  gap: 25px;
+  margin-bottom: 25px;
+}
+
+  .footer-icons svg {
+    width: 30px;
+    height: 30px;
+    stroke: #333;
+    fill: none;
+    stroke-width: 1.5;
+  }
+
+.footer-hours {
+  text-align: center;
+  line-height: 1.6;
+  font-size: 1em;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.hours-title {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.footer-copy {
+  font-size: 0.85em;
+  color: #666;
+}
+
+.footer-icons a {
+  display: block;
+  text-decoration: none;
+}
+
+.footer-email{display:inline-flex;align-items:center;min-height:44px;margin:-8px 0 18px;color:#483327;font-size:.95rem;letter-spacing:.03em;text-underline-offset:4px}
