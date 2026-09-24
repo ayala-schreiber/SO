@@ -113,7 +113,12 @@ public static class AdminSecurity
                 limiter.QueueLimit = 0;
             });
         });
-        services.AddControllersWithViews(options => options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
+        services.AddControllersWithViews(options => {
+            options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+            // Bound input before JSON/form model binding allocates large payloads.
+            // Product image endpoints explicitly override this with their 16 MB limit.
+            options.Filters.Add(new RequestSizeLimitAttribute(128 * 1024));
+        });
         return services;
     }
 }
