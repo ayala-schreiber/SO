@@ -1,12 +1,14 @@
-# SO — Boutique Ecommerce
+# SO
 
-A Hebrew, right-to-left storefront and owner dashboard built with **Angular 22, ASP.NET Core 8, Entity Framework Core and SQL Server**.
+A website for a small scarf boutique, with a Hebrew storefront and a dashboard for managing products, stock and orders.
 
-This is a sanitized snapshot of an actual boutique store project, published for code review and portfolio presentation. It retains the application logic and tests while replacing store contact and payment details. It is not a live shop: do not transfer money using this copy. Product quantities in the bundled catalog are demonstration values.
+Built with **Angular 22, ASP.NET Core 8, Entity Framework Core and SQL Server**. Customers can browse the collection, choose a color, place an order and follow its progress. The store owner manages the catalog and confirms payments from a separate dashboard.
 
-## What to explore
+This is the public portfolio version of the project. Contact details, payment recipients and stock quantities have been replaced with examples. It includes the application code and tests, but no customer database or production credentials. This copy is for local demonstration, not real purchases.
 
-| Area | Implemented behavior |
+## Features
+
+| Area | Features |
 | --- | --- |
 | Storefront | Catalog, collections, search suggestions, favorites, product variants and image zoom |
 | Checkout | Guest and account orders, coupons, delivery or pickup, server-calculated prices |
@@ -34,15 +36,15 @@ flowchart LR
 - `so.api/Models/`, `Data/`, `Migrations/`: relational model and schema evolution.
 - `tests/`: isolated SQL and HTTP integration checks.
 
-## Design decisions
+## How orders work
 
-**An open cart does not reserve stock.** An order holds stock for a configurable duration (30 minutes by default). Atomic server-side checks prevent two orders from reserving the last unit. Expired holds stop blocking availability, and late manual approval rechecks inventory.
+Items are reserved when an order is placed, for 30 minutes by default. Adding something to the cart does not reserve it. The server checks stock within a database transaction so that two customers cannot both reserve the last item. If a reservation expires, the items become available again.
 
-**A payment declaration is not proof of payment.** The shopper can report a transfer, but only an authorized owner can confirm receipt. Approval cannot deduct inventory twice. A future provider integration can reuse the payment workflow, but a real automatic payment provider is not connected.
+The store uses manual transfers. Customers can mark a transfer as sent; the owner checks that it arrived before approving the order. Approval rechecks stock and prevents a repeated confirmation from deducting the same items twice. There is no card checkout.
 
-**The server owns the price.** Product prices, discounts and delivery eligibility are recalculated server-side. Client totals are not authoritative.
+Prices, coupons and delivery fees are calculated again on the server when an order is placed. The checkout total shown in the browser is not used as the final price.
 
-**Public order codes are not access credentials.** Random codes avoid exposing the order sequence. Reading an order still requires an authorized account or protected guest access.
+Orders have random reference codes. Knowing a code alone does not grant access to the order: customers need their account or the protected cookie issued for a guest order.
 
 ## Run locally
 
@@ -87,10 +89,12 @@ node tests/run-commerce.cjs
 
 Integration fixtures create uniquely named temporary databases and remove them afterwards. The SQL login needs permission to create and drop those test databases. The test runner disables external email; SMTP assertions use a local test server. Some older standalone test scripts are historical helpers; `run-commerce.cjs` is the maintained integration entry point.
 
-## Scope and remaining work
+## Current status
 
-This is a work in progress, not a production-readiness certification. Public hosting, production backup/restore, deployment verification, comprehensive manual accessibility testing and final business policies remain deployment tasks. SMTP delivery currently logs failures but does not have a durable retry queue. Owner sessions assume a single API instance. SMS and automatic payment processing are not connected.
+The project runs locally; public hosting has not been set up yet. Before launch, the remaining work includes backups and restore testing, checking the deployed site, a full manual accessibility review and finalizing the store policies.
 
-The repository is an intentionally new public snapshot, not the complete private development history. Development was assisted by AI coding tools. The source and tests are provided so reviewers can examine the implementation directly.
+Email delivery has no persistent retry queue, and owner sessions currently support one API instance. SMS and automatic payment processing are not connected. See [SECURITY.md](SECURITY.md) for the security controls and checks.
 
-No open-source license is granted by this snapshot. Store photography and branding remain subject to their owners' rights.
+This repository starts from the public portfolio version; earlier private commits are not included. AI coding tools were used during development.
+
+The store's photos and branding belong to their respective owners. This repository does not grant a license to reuse them or the code.
